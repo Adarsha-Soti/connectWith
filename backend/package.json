@@ -2,6 +2,7 @@
   "name": "connectwith",
   "version": "1.0.0",
   "description": "connection app",
+  "type": "module",
   "main": "index.js",
   "scripts": {
    "dev": "nodemon index.js",

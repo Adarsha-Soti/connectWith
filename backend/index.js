@@ -44,18 +44,36 @@ app.get("/api/v1/users", async (req,res)=>{
     }
     
 });
+app.post("/api/v1/users", async (req,res)=>{
+    try{
+        let newUserData=req.body;
+        let saveUser= await User.create(newUserData);
+
+        return res.status(201).json({
+            status:"success",
+            message:"user created successfully",
+            data: saveUser
+        });
+    }
+    catch(error){
+        return res.status(500).json({ status:"error",message:"couldnot create user",error: error.message})
+    }
+
+})
 const connectServer= async()=>{
    await mongoose
-    .connect("mongodb://127.0.0.1:27017/myNewProject")
-    .then(() => console.log("Database Connected!"));
-
-    app.listen(PORT, (error) => {
-    if (error) {
-        console.error("SERVER NOT STARTED");
-    } else {
-        console.log("SERVER STARTE AT PORT : ", PORT);
-    }
+  .connect("mongodb://127.0.0.1:27017/myNewProject")
+  .then(() => {
+    console.log("Database Connected!");
+    
+    // Start listening ONLY after DB is connected
+    app.listen(PORT, () => {
+      console.log("SERVER STARTED AT PORT: ", PORT);
+    }).on('error', (err) => {
+      console.error("SERVER FAILED TO START:", err.message);
     });
+  })
+  .catch((err) => console.error("Database connection error:", err))
 }
 connectServer();
 
