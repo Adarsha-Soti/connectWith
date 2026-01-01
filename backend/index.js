@@ -11,6 +11,7 @@ const userSchema =new mongoose.Schema({
     title:String,
     description:String,
     email:String,
+    _id:String
 },{ strict: false });
 const User= mongoose.model("User",userSchema,"users");
 
@@ -30,7 +31,7 @@ app.get("/api/v1/users", async (req,res)=>{
         let users = await User.find();
     let formattedData= users.map((item)=>{
         return {
-            img:item.img, title:item.title, description:item.description, email:item.email
+            img:item.img, title:item.title, description:item.description, email:item.email,_id:item._id
         }
     });
     return res.json({
@@ -59,7 +60,62 @@ app.post("/api/v1/users", async (req,res)=>{
         return res.status(500).json({ status:"error",message:"couldnot create user",error: error.message})
     }
 
-})
+});
+
+
+app.patch("/api/v1/users/:_id",async(req,res)=>{
+    try{
+       let userId=req.params._id;
+       let updatedData=req.body;
+       let data=await User.findByIdAndUpdate(userId,updatedData,{new: true});
+
+       if(!data){
+            return res.status(404).json({
+                status:"error",
+                message:"user not found"
+            })
+       }
+
+       return res.json({
+        dtatus:"success",
+        message:"user updated",
+        data:data
+    })
+
+    }
+    catch(error){
+    return res.status(500).json({
+        status:"error",
+        message:"couldnot perform edit",
+        error:error.message
+    })
+    }
+});
+
+app.delete("/api/v1/users/:_id",async(req,res)=>{
+    try{
+       let userId=req.params._id;
+       
+       let deleteUser=await User.findByIdAndDelete(userId);
+
+       if(!deleteUser){
+            return res.status(404).json({
+                status:"error",
+                message:"user not found"
+            })
+       }
+
+
+    }
+    catch(error){
+    return res.status(500).json({
+        status:"error",
+        message:"couldnot perform delete",
+        error:error.message
+    })
+    }
+});
+
 const connectServer= async()=>{
    await mongoose
   .connect("mongodb://127.0.0.1:27017/myNewProject")
@@ -74,7 +130,9 @@ const connectServer= async()=>{
     });
   })
   .catch((err) => console.error("Database connection error:", err))
-}
+};
+
+
 connectServer();
 
 

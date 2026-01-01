@@ -4,29 +4,33 @@ let formContainer =document.getElementById("formContainer");
 const userForm= document.getElementById("userForm");
 const closeBtn = document.getElementById("closeBtn");
 let cardvalue=[];
+let currentEditId= null;
 
 createUser.addEventListener('click',(e)=>{
     e.preventDefault();
-    createUser.addEventListener('click', () => {
-        formContainer.style.display = "flex"; 
-     });
+    formContainer.style.display = "flex"; 
+});   
 
-     closeBtn.addEventListener('click', () => {
-        formContainer.style.display = "none";
-    });
-    formContainer.style.display = (formContainer.style.display === "none") ? "block" : "none";
- });  
+closeBtn.addEventListener('click', () => {
+formContainer.style.display = "none";
+userForm(reset);
+});
+formContainer.addEventListener('click',(e)=>{
+    if(e.target==formContainer){
+        formContainer.style.display="none";
+    }
+})
+
 
 const fetchData=async()=>{
     try{
    let response= await fetch("http://localhost:4000/api/v1/users");
    result=await response.json();
     cardvalue=result.data;
-    console.log(cardvalue);
         cardContainer.innerHTML="";
     cardvalue.forEach(items=>{
-        cardContainer.innerHTML+=`<div class=" col-md-6 col-lg-4 mb-3">
-                                    <div class="card h-100">
+        cardContainer.innerHTML+=`<div  class=" col-md-6 col-lg-4 mb-3">
+                                    <div onclick="userEdit('${items._id}')" class="card h-100">
                                         <div class="row g-0 text-start">
                                             <div class="col-5">
                                                 <img src="${items.img}" 
@@ -51,6 +55,23 @@ const fetchData=async()=>{
     
 }
 fetchData();
+
+const userEdit=(targetUserId)=>{
+    let clickedUser=cardvalue.find((item)=>item._id==targetUserId);
+
+   if(clickedUser){
+   currentEditId=targetUserId;
+    
+    formContainer.style.display="flex";
+    userForm.querySelector('h3').innerText="Edit User";
+
+    document.getElementById('title').value=clickedUser.title;
+    document.getElementById('email').value=clickedUser.email;
+    document.getElementById('img').value=clickedUser.img;
+    document.getElementById('description').value=clickedUser.description;
+   }else return;   
+}
+
 userForm.addEventListener('submit',async(e)=>{
     e.preventDefault();
 
@@ -61,9 +82,12 @@ userForm.addEventListener('submit',async(e)=>{
         description: document.getElementById("description").value
 
     }
+    const isEditing=currentEditId!==null;
+    const urlMethod=isEditing?"PATCH":"POST";
+    const url=isEditing?`http://localhost:4000/api/v1/users/${currentEditId}`:"http://localhost:4000/api/v1/users"
     try{
-        const response=await fetch(('http://localhost:4000/api/v1/users'),{
-            method:"POST",
+        const response=await fetch((url),{
+            method:urlMethod,
             headers:{
                 "Content-Type":"application/json"
             },
@@ -74,15 +98,19 @@ userForm.addEventListener('submit',async(e)=>{
             fetchData();
             userForm.reset();
             formContainer.style.display="none";
+            currentEditId=null;
+            userForm.querySelector('h3').innerText="Add New User";
         }
         else {
             alert("there was a problem creating the user");
+            userForm.reset();
         }
     }catch(error){
         console("error posting data", error);
     };
 
 });
+
     
 
    

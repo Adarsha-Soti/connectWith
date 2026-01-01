@@ -45,6 +45,7 @@ body{
 .card:hover{
     scale: 1.05;
     box-shadow:11px 13px 7px 2px #1c201a8c, 5px 5px 1px 0px #9da7981f ;
+    cursor: pointer;
 }
 
 .topHead{
@@ -58,13 +59,13 @@ body{
     left: 0;
     width: 100%;
     height: 100%;
-    backdrop-filter: blur(5px); 
+    z-index: 1000;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; 
+    background: rgba(146, 207, 169, 0.4); 
+    backdrop-filter: blur(5px); 
 }
-
 .custom-form {
     width: 400px;
     background-color: white;
